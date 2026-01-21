@@ -13,7 +13,7 @@ public class EnemyHealthBar : MonoBehaviour
         _healthText.text = current.ToString();
     }
 
-    public void SetPosition(Vector3 worldPosition, Camera camera, GameConfig config)
+    public void SetPosition(Vector3 worldPosition, Camera camera, GameplayConfig config)
     {
         transform.position = worldPosition + Vector3.up * config.HealthBarHeightOffset;
         transform.LookAt(2 * worldPosition - camera.transform.position);

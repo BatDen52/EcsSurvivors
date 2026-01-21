@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class ProjectileMoveSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
+    private readonly ProjectileConfig _config;
     private EcsWorld _world;
     private EcsFilter _filter;
     private EcsPool<RigidbodyRef> _rigidbodiesPool;
@@ -12,7 +12,7 @@ public class ProjectileMoveSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<ProjectileLifetime> _lifetimesPool;
     private EcsPool<DestroyRequest> _destroyRequestsPool;
 
-    public ProjectileMoveSystem(GameConfig config)
+    public ProjectileMoveSystem(ProjectileConfig config)
     {
         _config = config;
     }
@@ -35,7 +35,7 @@ public class ProjectileMoveSystem : IEcsInitSystem, IEcsRunSystem
             ref var rb = ref _rigidbodiesPool.Get(projectile);
             ref var transform = ref _transformsPool.Get(projectile);
 
-            rb.Value.MovePosition(transform.Value.position + _directionPool.Get(projectile).Value * _config.ProjectileSpeed * Time.deltaTime);
+            rb.Value.MovePosition(transform.Value.position + _directionPool.Get(projectile).Value * _config.Speed * Time.deltaTime);
 
             if (_lifetimesPool.Has(projectile) &&  _destroyRequestsPool.Has(projectile) == false)
             {

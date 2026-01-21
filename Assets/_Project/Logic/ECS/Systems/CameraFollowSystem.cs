@@ -4,13 +4,13 @@ using static UnityEngine.GraphicsBuffer;
 
 public class CameraFollowSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
+    private readonly CameraConfig _config;
     private readonly Camera _camera;
     private EcsWorld _world;
     private EcsFilter _playerFilter;
     private EcsPool<TransformRef> _transformsPool;
 
-    public CameraFollowSystem(GameConfig config, Camera camera)
+    public CameraFollowSystem(CameraConfig config, Camera camera)
     {
         _config = config;
         _camera = camera;
@@ -34,14 +34,14 @@ public class CameraFollowSystem : IEcsInitSystem, IEcsRunSystem
         foreach (var player in _playerFilter)
         {
             target = _transformsPool.Get(player).Value;
-            targetPosition = target.position + _config.CameraOffset;
+            targetPosition = target.position + _config.Offset;
             break;
         }
 
         _camera.transform.position = Vector3.Lerp(
             _camera.transform.position,
             targetPosition,
-            _config.CameraFollowSpeed * Time.deltaTime
+            _config.FollowSpeed * Time.deltaTime
         );
 
         _camera.transform.LookAt(target);

@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class PlayerShootSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
-    private readonly Transform _projectilePrefab;
     private EcsWorld _world;
     private EcsFilter _playerFilter;
     private EcsFilter _enemyFilter;
@@ -12,12 +10,6 @@ public class PlayerShootSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<TransformRef> _transformsPool;
     private EcsPool<Health> _healthsPool;
     private SpatialCacheSystem _spatialCache;
-
-    public PlayerShootSystem(GameConfig config, Transform projectilePrefab)
-    {
-        _config = config;
-        _projectilePrefab = projectilePrefab;
-    }
 
     public void Init(IEcsSystems systems)
     {

@@ -20,7 +20,7 @@ public class PoolService : MonoBehaviour
             Destroy(gameObject);
     }
 
-    public void Initialize(Transform projectilePrefab, Transform enemyPrefab, Transform coinPrefab, GameConfig config)
+    public void Initialize(Transform projectilePrefab, Transform enemyPrefab, Transform coinPrefab, PoolConfig config)
     {
         _projectilePrefab = projectilePrefab;
         _enemyPrefab = enemyPrefab;

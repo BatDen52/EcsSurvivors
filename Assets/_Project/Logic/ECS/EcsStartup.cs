@@ -26,12 +26,12 @@ public class EcsStartup : MonoBehaviour
         _uiEventListeners.InitializeEcsFilters(_world);
 
         var poolService = gameObject.AddComponent<PoolService>();
-        poolService.Initialize(_projectilePrefab, _enemyPrefab, _coinPrefab, _config);
+        poolService.Initialize(_projectilePrefab, _enemyPrefab, _coinPrefab, _config.PoolConfig);
 
-        var playerFactory = new PlayerFactory(_config, _playerPrefab, _healthBarPrefab);
-        var enemyFactory = new EnemyFactory(_config, _enemyPrefab, _mainCamera, _healthBarPrefab);
-        var projectileFactory = new ProjectileFactory(_config, _projectilePrefab);
-        var coinFactory = new CoinFactory(_config, _coinPrefab);
+        var playerFactory = new PlayerFactory(_config.PlayerConfig, _playerPrefab, _healthBarPrefab);
+        var enemyFactory = new EnemyFactory(_config.EnemySpawnerConfig.EnemyConfig, _enemyPrefab, _mainCamera, _healthBarPrefab);
+        var projectileFactory = new ProjectileFactory(_config.ProjectileConfig, _projectilePrefab);
+        var coinFactory = new CoinFactory(_config.CoinConfig, _coinPrefab);
 
         var sharedData = new SystemsSharedData {
             SpatialCacheSystem = new SpatialCacheSystem()
@@ -42,23 +42,23 @@ public class EcsStartup : MonoBehaviour
             .Add(new SpawnPlayerSystem(playerFactory))
             .Add(new SpawnProjectileSystem(projectileFactory))
             .Add(new SpawnCoinSystem(coinFactory))
-            .Add(new PlayerInputSystem(_config))
+            .Add(new PlayerInputSystem())
             .Add(new PlayerMoveSystem())
-            .Add(new PlayerShootSystem(_config, _projectilePrefab))
-            .Add(new ProjectileMoveSystem(_config))
-            .Add(new EnemySpawnSystem(_config, enemyFactory, _mainCamera))
-            .Add(new EnemyMoveSystem(_config))
-            .Add(new CollisionSystem(_config))
-            .Add(new DamageSystem(_config))
+            .Add(new PlayerShootSystem())
+            .Add(new ProjectileMoveSystem(_config.ProjectileConfig))
+            .Add(new EnemySpawnSystem(_config.EnemySpawnerConfig, enemyFactory, _mainCamera))
+            .Add(new EnemyMoveSystem(_config.EnemySpawnerConfig.EnemyConfig))
+            .Add(new CollisionSystem(_config.GameplayConfig))
+            .Add(new DamageSystem(_config.EnemySpawnerConfig.EnemyConfig))
             .Add(new HealthCheckSystem())
             .Add(new PlayerDeathSystem())
-            .Add(new EnemyDeathSystem(_config))
+            .Add(new EnemyDeathSystem(_config.CoinConfig))
             .Add(new ProjectileDeathSystem())
             .Add(new ObjectLifecycleSystem(poolService))
-            .Add(new CoinCollectSystem(_config))
-            .Add(new CameraFollowSystem(_config, _mainCamera))
+            .Add(new CoinCollectSystem(_config.CoinConfig))
+            .Add(new CameraFollowSystem(_config.CameraConfig, _mainCamera))
             .Add(new UIPlayerSystem(_playerHealthText, _coinsText, _gameOverPanel))
-            .Add(new UIEnemyHealthSystem(_mainCamera, _config))
+            .Add(new UIEnemyHealthSystem(_mainCamera, _config.GameplayConfig))
             .Init();
 
         var spawnPlayerRequest = _world.NewEntity();

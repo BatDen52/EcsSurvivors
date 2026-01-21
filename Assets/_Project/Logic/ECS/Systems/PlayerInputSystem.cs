@@ -3,15 +3,12 @@ using UnityEngine;
 
 public class PlayerInputSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
+    private const string Horizontal = "Horizontal";
+    private const string Vertical = "Vertical";
+
     public EcsWorld _world;
     private EcsFilter _filter;
     private EcsPool<InputVector> _inputsPool;
-
-    public PlayerInputSystem(GameConfig config)
-    {
-        _config = config;
-    }
 
     public void Init(IEcsSystems systems)
     {
@@ -26,8 +23,8 @@ public class PlayerInputSystem : IEcsInitSystem, IEcsRunSystem
         {
             ref var input = ref _inputsPool.Get(player);
             input.Value = new Vector2(
-                Input.GetAxisRaw("Horizontal"),
-                Input.GetAxisRaw("Vertical")
+                Input.GetAxisRaw(Horizontal),
+                Input.GetAxisRaw(Vertical)
             );
         }
     }

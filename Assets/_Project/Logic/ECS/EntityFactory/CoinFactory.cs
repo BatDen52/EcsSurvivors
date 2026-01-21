@@ -4,16 +4,18 @@ using UnityEngine;
 public class CoinFactory : BaseFactory<CoinTag>
 {
     private readonly Transform _prefab;
+    private readonly CoinConfig _config;
 
-    public CoinFactory(GameConfig config, Transform prefab)
-        : base(config)
+    public CoinFactory(CoinConfig config, Transform prefab)
     {
         _prefab = prefab;
+        _config = config;
     }
 
     public int Create(EcsWorld world, Vector3 position)
     {
         Transform coinTransform;
+
         if (PoolService.Instance?.CoinPool != null)
         {
             var coinGo = PoolService.Instance.CoinPool.Get(position, Quaternion.identity);

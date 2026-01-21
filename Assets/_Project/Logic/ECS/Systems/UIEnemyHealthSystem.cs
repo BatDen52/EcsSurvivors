@@ -6,14 +6,14 @@ using UnityEngine.UI;
 public class UIEnemyHealthSystem : IEcsInitSystem, IEcsRunSystem
 {
     private readonly Camera _camera;
-    private readonly GameConfig _config;
+    private readonly GameplayConfig _config;
     private EcsWorld _world;
     private EcsFilter _filter;
     private EcsPool<Health> _healthsPool;
     private EcsPool<UIHealthBar> _uiBarsPool;
     private EcsPool<TransformRef> _transformsPool;
 
-    public UIEnemyHealthSystem(Camera camera, GameConfig config)
+    public UIEnemyHealthSystem(Camera camera, GameplayConfig config)
     {
         _camera = camera;
         _config = config;

@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "EcsSurvivors.slnx"
+    "dotnet.defaultSolution": "WizardSurvivors.slnx"
 }

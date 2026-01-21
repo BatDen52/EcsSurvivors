@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CoinCollectSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
+    private readonly CoinConfig _config;
     private EcsWorld _world;
     private EcsFilter _coinFilter;
     private EcsFilter _playerFilter;
@@ -12,7 +12,7 @@ public class CoinCollectSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<TransformRef> _playerTransformsPool;
     private EcsPool<ResourceCoins> _resourcesPool;
 
-    public CoinCollectSystem(GameConfig config)
+    public CoinCollectSystem(CoinConfig config)
     {
         _config = config;
     }
@@ -45,7 +45,7 @@ public class CoinCollectSystem : IEcsInitSystem, IEcsRunSystem
         {
             ref var coinTransform = ref _coinTransformsPool.Get(coin);
 
-            if (coinTransform.Value.position.IsEnoughClose(playerPosition, _config.CoinCollectionDistance))
+            if (coinTransform.Value.position.IsEnoughClose(playerPosition, _config.CollectionDistance))
             {
                 foreach (var state in _stateFilter)
                 {

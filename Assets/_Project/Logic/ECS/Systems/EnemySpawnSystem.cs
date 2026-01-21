@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class EnemySpawnSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
+    private readonly EnemySpawnerConfig _config;
     private readonly EnemyFactory _enemyFactory;
     private readonly Camera _camera;
     private EcsWorld _world;
@@ -14,7 +14,7 @@ public class EnemySpawnSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<EnemySpawnTimer> _spawnTimerPool;
     private int _spawnTimerEntity;
 
-    public EnemySpawnSystem(GameConfig config, EnemyFactory enemyFactory, Camera camera)
+    public EnemySpawnSystem(EnemySpawnerConfig config, EnemyFactory enemyFactory, Camera camera)
     {
         _config = config;
         _enemyFactory = enemyFactory;
@@ -51,7 +51,7 @@ public class EnemySpawnSystem : IEcsInitSystem, IEcsRunSystem
         ref var spawnTimer = ref _spawnTimerPool.Get(_spawnTimerEntity);
         spawnTimer.Current += Time.deltaTime;
 
-        if (spawnTimer.Current < _config.EnemySpawnInterval)
+        if (spawnTimer.Current < _config.SpawnInterval)
             return;
 
         spawnTimer.Current = 0;
@@ -100,12 +100,12 @@ public class EnemySpawnSystem : IEcsInitSystem, IEcsRunSystem
 
         return GeneratePosition(cameraHeight, cameraWidth, cameraPos, groundY)
                + (_camera.transform.position - GeneratePosition(cameraHeight, cameraWidth, cameraPos, groundY)).normalized
-               * _config.EnemySpawnDistanceFromCamera * 2;
+               * _config.SpawnDistanceFromCamera * 2;
     }
 
     private Vector3 GeneratePosition(float cameraHeight, float cameraWidth, Vector3 cameraPos, float groundY)
     {
-        float radius = Mathf.Max(cameraWidth, cameraHeight) / 2 + _config.EnemySpawnDistanceFromCamera * 2;
+        float radius = Mathf.Max(cameraWidth, cameraHeight) / 2 + _config.SpawnDistanceFromCamera * 2;
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
 
         Vector3 spawnPosition = new Vector3(

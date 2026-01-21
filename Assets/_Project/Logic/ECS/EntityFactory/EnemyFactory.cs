@@ -6,10 +6,11 @@ public class EnemyFactory : BaseFactory<EnemyTag>
     private readonly Transform _prefab;
     private readonly Camera _camera;
     private readonly GameObject _healthBarPrefab;
+    private readonly EnemyConfig _config;
 
-    public EnemyFactory(GameConfig config, Transform prefab, Camera camera, GameObject healthBarPrefab)
-        : base(config)
+    public EnemyFactory(EnemyConfig config, Transform prefab, Camera camera, GameObject healthBarPrefab)
     {
+        _config = config;
         _prefab = prefab;
         _camera = camera;
         _healthBarPrefab = healthBarPrefab;
@@ -35,10 +36,10 @@ public class EnemyFactory : BaseFactory<EnemyTag>
         SetupTransform<EnemyTag>(world, entity, enemyTransform);
 
         ref var health = ref world.GetPool<Health>().Add(entity);
-        health.Current = _config.EnemyMaxHealth;
-        health.Max = _config.EnemyMaxHealth;
+        health.Current = _config.MaxHealth;
+        health.Max = _config.MaxHealth;
 
-        world.GetPool<MoveSpeed>().Add(entity).Value = _config.EnemyMoveSpeed;
+        world.GetPool<MoveSpeed>().Add(entity).Value = _config.MoveSpeed;
 
         world.GetPool<EnemyDamageCooldown>().Add(entity).Max = 1f;
 

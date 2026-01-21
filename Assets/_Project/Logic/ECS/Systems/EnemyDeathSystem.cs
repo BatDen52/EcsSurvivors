@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class EnemyDeathSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
+    private readonly CoinConfig _config;
     private EcsWorld _world;
     private EcsFilter _deadEnemiesFilter;
     private EcsPool<DeadTag> _deadPool;
@@ -11,7 +11,7 @@ public class EnemyDeathSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<TransformRef> _transformsPool;
     private EcsPool<UIHealthBar> _uiBarsPool;
 
-    public EnemyDeathSystem(GameConfig config)
+    public EnemyDeathSystem(CoinConfig config)
     {
         _config = config;
     }
@@ -30,7 +30,7 @@ public class EnemyDeathSystem : IEcsInitSystem, IEcsRunSystem
     {
         foreach (var enemy in _deadEnemiesFilter)
         {
-            if (Random.value < _config.CoinDropChance)
+            if (Random.value < _config.DropChance)
             {
                 var spawnRequest = _world.NewEntity();
                 ref var request = ref _world.GetPool<SpawnCoinRequest>().Add(spawnRequest);

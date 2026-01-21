@@ -5,12 +5,13 @@ public class PlayerFactory : BaseFactory<PlayerTag>
 {
     private readonly Transform _prefab;
     private readonly GameObject _healthBarPrefab;
+    protected readonly PlayerConfig _config;
 
-    public PlayerFactory(GameConfig config, Transform prefab, GameObject healthBarPrefab)
-        : base(config)
+    public PlayerFactory(PlayerConfig config, Transform prefab, GameObject healthBarPrefab)
     {
         _prefab = prefab;
         _healthBarPrefab = healthBarPrefab;
+        _config = config;
     }
 
     public override int Create(EcsWorld world)
@@ -23,10 +24,10 @@ public class PlayerFactory : BaseFactory<PlayerTag>
         SetupTransform<PlayerTag>(world, entity, playerTransform);
 
         ref var health = ref world.GetPool<Health>().Add(entity);
-        health.Current = _config.PlayerMaxHealth;
-        health.Max = _config.PlayerMaxHealth;
+        health.Current = _config.MaxHealth;
+        health.Max = _config.MaxHealth;
 
-        world.GetPool<MoveSpeed>().Add(entity).Value = _config.PlayerMoveSpeed;
+        world.GetPool<MoveSpeed>().Add(entity).Value = _config.MoveSpeed;
         world.GetPool<FireCooldown>().Add(entity).Max = _config.ShootCooldown;
         world.GetPool<InputVector>().Add(entity);
 

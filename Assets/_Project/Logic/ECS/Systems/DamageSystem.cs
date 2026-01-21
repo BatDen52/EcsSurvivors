@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class DamageSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
+    private readonly EnemyConfig _config;
     private EcsWorld _world;
     private EcsFilter _playerFilter;
     private EcsFilter _enemyFilter;
@@ -12,7 +12,7 @@ public class DamageSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<TransformRef> _positionsPool;
     private EcsPool<EnemyDamageCooldown> _damageCooldownsPool;
 
-    public DamageSystem(GameConfig config)
+    public DamageSystem(EnemyConfig config)
     {
         _config = config;
     }
@@ -38,7 +38,7 @@ public class DamageSystem : IEcsInitSystem, IEcsRunSystem
             {
                 ref var playerPos = ref _positionsPool.Get(player);
 
-                if (enemyPos.Value.position.IsEnoughClose(playerPos.Value.position, _config.EnemyDamageDistance))
+                if (enemyPos.Value.position.IsEnoughClose(playerPos.Value.position, _config.DamageDistance))
                 {
                     ref var damageCooldown = ref _damageCooldownsPool.Get(enemy);
                     damageCooldown.Current -= Time.deltaTime;
@@ -48,7 +48,7 @@ public class DamageSystem : IEcsInitSystem, IEcsRunSystem
                         damageCooldown.Current = damageCooldown.Max;
 
                         ref var playerHealth = ref _playerPool.Get(player);
-                        playerHealth.Current -= _config.EnemyDamagePerSecond;
+                        playerHealth.Current -= _config.DamagePerSecond;
                         if (playerHealth.Current < 0)
                             playerHealth.Current = 0;
 

@@ -4,10 +4,11 @@ using UnityEngine;
 public class ProjectileFactory : BaseFactory<ProjectileTag>
 {
     private readonly Transform _prefab;
+    private readonly ProjectileConfig _config;
 
-    public ProjectileFactory(GameConfig config, Transform prefab)
-        : base(config)
+    public ProjectileFactory(ProjectileConfig config, Transform prefab)
     {
+        _config = config;
         _prefab = prefab;
     }
 
@@ -30,12 +31,12 @@ public class ProjectileFactory : BaseFactory<ProjectileTag>
         var entity = world.NewEntity();
         SetupTransform<ProjectileTag>(world, entity, projectileTransform);
 
-        world.GetPool<Damage>().Add(entity).Amount = _config.ProjectileDamage;
+        world.GetPool<Damage>().Add(entity).Amount = _config.Damage;
         world.GetPool<Direction>().Add(entity).Value = direction;
-        world.GetPool<ProjectileLifetime>().Add(entity).Value = _config.ProjectileLifetime;
+        world.GetPool<ProjectileLifetime>().Add(entity).Value = _config.Lifetime;
 
         var rigidbody = projectileTransform.GetComponent<Rigidbody>();
-        rigidbody.linearVelocity = direction * _config.ProjectileSpeed;
+        rigidbody.linearVelocity = direction * _config.Speed;
 
         var entityLink = projectileTransform.GetComponent<EntityLink>() ?? projectileTransform.gameObject.AddComponent<EntityLink>();
         entityLink.Entity = entity;

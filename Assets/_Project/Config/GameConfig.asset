@@ -12,17 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a41157e801062974c87f06774d4b3792, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  _playerMaxHealth: 100
-  _playerMoveSpeed: 5
-  _shootCooldown: 1
-  _projectileSpeed: 12
-  _projectileDamage: 25
-  _enemyMaxHealth: 100
-  _enemyMoveSpeed: 3
-  _enemyStopDistance: 1.5
-  _enemyDamageDistance: 1.5
-  _enemyDamagePerSecond: 5
-  _enemySpawnInterval: 7
-  _coinDropChance: 0.5
-  _cameraFollowSpeed: 5
-  _cameraOffset: {x: 0, y: 10, z: -10}
+  _playerConfig: {fileID: 11400000, guid: d939febb586851d4eb7196cd3084807b, type: 2}
+  _projectileConfig: {fileID: 11400000, guid: 4a5006f46079a60478aa038d535d8c91, type: 2}
+  _enemySpawnerConfig: {fileID: 11400000, guid: 0eedce4351479e34b9ad9d6d71c56b95, type: 2}
+  _coinConfig: {fileID: 11400000, guid: 55ea6680fc9cd3b41b6f7fe46a381901, type: 2}
+  _cameraConfig: {fileID: 11400000, guid: dd4290080b79dad4fb1f250366333f70, type: 2}
+  _gameplayConfig: {fileID: 11400000, guid: 0aae4ab57b2cacc488e786c5d35512f7, type: 2}
+  _poolConfig: {fileID: 11400000, guid: 84d4fa099ec23764a8c61cff15bbf9fa, type: 2}

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class EnemyMoveSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
+    private readonly EnemyConfig _config;
     private EcsWorld _world;
     private EcsFilter _enemyFilter;
     private EcsFilter _playerFilter;
@@ -11,7 +11,7 @@ public class EnemyMoveSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<MoveSpeed> _speedsPool;
     private EcsPool<RigidbodyRef> _rigidbodiesPool;
 
-    public EnemyMoveSystem(GameConfig config)
+    public EnemyMoveSystem(EnemyConfig config)
     {
         _config = config;
     }
@@ -44,13 +44,14 @@ public class EnemyMoveSystem : IEcsInitSystem, IEcsRunSystem
             ref var enemyTransform = ref _transformsPool.Get(enemy);
             ref var speed = ref _speedsPool.Get(enemy);
             ref var rigidbody = ref _rigidbodiesPool.Get(enemy);
+            Vector3 position = enemyTransform.Value.position;
 
-            Vector3 direction = (playerPosition - enemyTransform.Value.position).normalized;
-            float sqrDistance = playerPosition.SqrDistance(enemyTransform.Value.position);
+            Vector3 direction = (playerPosition - position).normalized;
 
-            rigidbody.Value.linearVelocity = sqrDistance > _config.EnemyStopDistance * _config.EnemyStopDistance ?
-                                                        direction * speed.Value :
-                                                        Vector3.zero;
+            rigidbody.Value.linearVelocity = 
+                                    playerPosition.IsEnoughClose(position, _config.StopDistance) ?
+                                    direction * speed.Value :
+                                    Vector3.zero;
         }
     }
 }

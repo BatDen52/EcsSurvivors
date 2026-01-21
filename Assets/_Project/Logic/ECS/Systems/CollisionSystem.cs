@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CollisionSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private readonly GameConfig _config;
+    private readonly GameplayConfig _config;
     private EcsWorld _world;
     private EcsFilter _filter;
     private EcsFilter _projectileFilter;
@@ -16,7 +16,7 @@ public class CollisionSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<Damage> _damagePool;
     private EcsPool<TransformRef> _transformsPool;
 
-    public CollisionSystem(GameConfig config)
+    public CollisionSystem(GameplayConfig config)
     {
         _config = config;
     }
