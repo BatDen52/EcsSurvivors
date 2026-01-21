@@ -1,5 +1,4 @@
 using Leopotam.EcsLite;
-using UnityEngine;
 
 public class ObjectLifecycleSystem : IEcsInitSystem, IEcsRunSystem
 {
@@ -11,15 +10,16 @@ public class ObjectLifecycleSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<ReturnToPoolRequest> _returnToPoolRequestsPool;
     private PoolReturnService _poolReturnService;
 
-    public ObjectLifecycleSystem(PoolService poolService)
+    public ObjectLifecycleSystem(ObjectPool<EntityLink> enemyPool, ObjectPool<EntityLink> projectilePool, 
+        ObjectPool<EntityLink> coinPool)
     {
-        _poolReturnService = new PoolReturnService(poolService, null);
+        _poolReturnService = new PoolReturnService(enemyPool, projectilePool, coinPool);
     }
 
     public void Init(IEcsSystems systems)
     {
         _world = systems.GetWorld();
-        _poolReturnService = new PoolReturnService(PoolService.Instance, _world);
+        _poolReturnService.SetWorld(_world);
 
         _destroyFilter = _world.Filter<DestroyRequest>().End();
         _returnToPoolFilter = _world.Filter<ReturnToPoolRequest>().End();
@@ -33,7 +33,6 @@ public class ObjectLifecycleSystem : IEcsInitSystem, IEcsRunSystem
 
     public void Run(IEcsSystems systems)
     {
-        // Обработка запросов на уничтожение конкретных сущностей
         var destroyEntityFilter = _world.Filter<DestroyEntityRequest>().End();
         foreach (var entity in destroyEntityFilter)
         {
@@ -48,14 +47,12 @@ public class ObjectLifecycleSystem : IEcsInitSystem, IEcsRunSystem
             _world.DelEntity(entity);
         }
 
-        // Обработка запросов на уничтожение текущей сущности
         foreach (var entity in _destroyFilter)
         {
             _poolReturnService.ReturnEntityToPool(entity);
             _world.DelEntity(entity);
         }
 
-        // Обработка запросов на возврат в пул
         foreach (var entity in _returnToPoolFilter)
         {
             _poolReturnService.ReturnEntityToPool(entity);

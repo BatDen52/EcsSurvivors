@@ -6,6 +6,7 @@ public class UIEventListeners : MonoBehaviour
     [SerializeField] private PlayerHealthUI _playerHealthUI;
     [SerializeField] private PlayerCoinsUI _playerCoinsUI;
     [SerializeField] private Camera _mainCamera;
+
     private EcsWorld _world;
     private EcsFilter _playerHealthEventsFilter;
     private EcsFilter _playerCoinsEventsFilter;
@@ -50,5 +51,4 @@ public class UIEventListeners : MonoBehaviour
             _world.DelEntity(entity);
         }
     }
-
 }

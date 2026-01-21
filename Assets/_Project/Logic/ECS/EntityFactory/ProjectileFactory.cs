@@ -3,45 +3,35 @@ using UnityEngine;
 
 public class ProjectileFactory : BaseFactory<ProjectileTag>
 {
-    private readonly Transform _prefab;
-    private readonly ProjectileConfig _config;
+    private const string DefaultName = "Projectile";
 
-    public ProjectileFactory(ProjectileConfig config, Transform prefab)
+    private readonly ProjectileConfig _config;
+    private readonly ObjectPool<EntityLink> _projectilePool;
+
+    public ProjectileFactory(ProjectileConfig config, ObjectPool<EntityLink> projectilePool)
     {
         _config = config;
-        _prefab = prefab;
+        _projectilePool = projectilePool;
     }
 
     public int Create(EcsWorld world, Vector3 position, Vector3 direction)
     {
-        Transform projectileTransform;
-        if (PoolService.Instance?.ProjectilePool != null)
-        {
-            var projectileGo = PoolService.Instance.ProjectilePool.Get(position, Quaternion.LookRotation(direction));
-            projectileGo.name = "Projectile";
-            projectileTransform = projectileGo.transform;
-        }
-        else
-        {
-            var projectileGo = Object.Instantiate(_prefab, position, Quaternion.LookRotation(direction));
-            projectileGo.name = "Projectile";
-            projectileTransform = projectileGo.transform;
-        }
-
+        var projectileGo = _projectilePool.Get(position, Quaternion.LookRotation(direction));
+        projectileGo.name = DefaultName;
+      
         var entity = world.NewEntity();
-        SetupTransform<ProjectileTag>(world, entity, projectileTransform);
+        SetupTransform<ProjectileTag>(world, entity, projectileGo.transform);
 
         world.GetPool<Damage>().Add(entity).Amount = _config.Damage;
         world.GetPool<Direction>().Add(entity).Value = direction;
         world.GetPool<ProjectileLifetime>().Add(entity).Value = _config.Lifetime;
 
-        var rigidbody = projectileTransform.GetComponent<Rigidbody>();
+        var rigidbody = projectileGo.GetComponent<Rigidbody>();
         rigidbody.linearVelocity = direction * _config.Speed;
 
-        var entityLink = projectileTransform.GetComponent<EntityLink>() ?? projectileTransform.gameObject.AddComponent<EntityLink>();
-        entityLink.Entity = entity;
+        projectileGo.Entity = entity;
 
-        projectileTransform.GetComponent<CollisionTrigger>()?.Initialize(world);
+        projectileGo.GetComponent<CollisionTrigger>()?.Initialize(world);
 
         return entity;
     }

@@ -3,18 +3,27 @@ using UnityEngine;
 
 public class PoolReturnService
 {
-    private readonly PoolService _poolService;
-    private readonly EcsWorld _world;
+    private readonly ObjectPool<EntityLink> _coinPool;
+    private readonly ObjectPool<EntityLink> _projectilePool;
+    private readonly ObjectPool<EntityLink> _enemyPool;
+    private EcsWorld _world;
 
-    public PoolReturnService(PoolService poolService, EcsWorld world)
+    public PoolReturnService(ObjectPool<EntityLink> enemyPool, ObjectPool<EntityLink> projectilePool,
+        ObjectPool<EntityLink> coinPool)
     {
-        _poolService = poolService;
+        _coinPool = coinPool;
+        _projectilePool = projectilePool;
+        _enemyPool = enemyPool;
+    }
+
+    public void SetWorld(EcsWorld world)
+    {
         _world = world;
     }
 
     public void ReturnEntityToPool(int entity)
     {
-        if (!_world.GetPool<TransformRef>().Has(entity))
+        if (_world == null || !_world.GetPool<TransformRef>().Has(entity))
             return;
 
         var transform = _world.GetPool<TransformRef>().Get(entity).Value;
@@ -23,20 +32,20 @@ public class PoolReturnService
         if (entityLink == null)
             return;
 
-        if (_world.GetPool<ProjectileTag>().Has(entity) && _poolService?.ProjectilePool != null)
+        if (_world.GetPool<ProjectileTag>().Has(entity) && _projectilePool != null)
         {
             ResetProjectile(entity, transform);
-            _poolService.ProjectilePool.ReturnToPool(entityLink);
+            _projectilePool.ReturnToPool(entityLink);
         }
-        else if (_world.GetPool<EnemyTag>().Has(entity) && _poolService?.EnemyPool != null)
+        else if (_world.GetPool<EnemyTag>().Has(entity) && _enemyPool != null)
         {
             ResetEnemy(entity, transform);
-            _poolService.EnemyPool.ReturnToPool(entityLink);
+            _enemyPool.ReturnToPool(entityLink);
         }
-        else if (_world.GetPool<CoinTag>().Has(entity) && _poolService?.CoinPool != null)
+        else if (_world.GetPool<CoinTag>().Has(entity) && _coinPool != null)
         {
             ResetCoin(entity, transform);
-            _poolService.CoinPool.ReturnToPool(entityLink);
+            _coinPool.ReturnToPool(entityLink);
         }
         else
         {

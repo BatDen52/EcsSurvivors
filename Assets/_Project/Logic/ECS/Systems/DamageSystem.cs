@@ -48,7 +48,7 @@ public class DamageSystem : IEcsInitSystem, IEcsRunSystem
                         damageCooldown.Current = damageCooldown.Max;
 
                         ref var playerHealth = ref _playerPool.Get(player);
-                        playerHealth.Current -= _config.DamagePerSecond;
+                        playerHealth.Current -= _config.Damage;
                         if (playerHealth.Current < 0)
                             playerHealth.Current = 0;
 

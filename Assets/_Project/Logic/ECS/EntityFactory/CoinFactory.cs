@@ -3,37 +3,28 @@ using UnityEngine;
 
 public class CoinFactory : BaseFactory<CoinTag>
 {
-    private readonly Transform _prefab;
-    private readonly CoinConfig _config;
+    private const string DefaultName = "Coin";
 
-    public CoinFactory(CoinConfig config, Transform prefab)
+    private readonly EntityLink _prefab;
+    private readonly CoinConfig _config;
+    private readonly ObjectPool<EntityLink> _coinPool;
+
+    public CoinFactory(CoinConfig config, ObjectPool<EntityLink> coinPool)
     {
-        _prefab = prefab;
         _config = config;
+        _coinPool = coinPool;
+        _prefab = _config.CoinPrefab;
     }
 
     public int Create(EcsWorld world, Vector3 position)
     {
-        Transform coinTransform;
-
-        if (PoolService.Instance?.CoinPool != null)
-        {
-            var coinGo = PoolService.Instance.CoinPool.Get(position, Quaternion.identity);
-            coinGo.name = "Coin";
-            coinTransform = coinGo.transform;
-        }
-        else
-        {
-            var coinGo = Object.Instantiate(_prefab, position, Quaternion.identity);
-            coinGo.name = "Coin";
-            coinTransform = coinGo.transform;
-        }
+        var coinGo = _coinPool.Get(position, Quaternion.identity);
+        coinGo.name = DefaultName;
 
         var entity = world.NewEntity();
-        SetupTransform<CoinTag>(world, entity, coinTransform);
+        SetupTransform<CoinTag>(world, entity, coinGo.transform);
 
-        var entityLink = coinTransform.GetComponent<EntityLink>() ?? coinTransform.gameObject.AddComponent<EntityLink>();
-        entityLink.Entity = entity;
+        coinGo.Entity = entity;
 
         return entity;
     }

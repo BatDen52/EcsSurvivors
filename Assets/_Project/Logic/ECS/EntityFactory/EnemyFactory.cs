@@ -3,44 +3,35 @@ using UnityEngine;
 
 public class EnemyFactory : BaseFactory<EnemyTag>
 {
+    private const string DefaultName = "Enemy";
+
     private readonly Camera _camera;
+    private readonly ObjectPool<EntityLink> _enemyPool;
     private readonly EnemyConfig _config;
 
-    public EnemyFactory(EnemyConfig config, Camera camera)
+    public EnemyFactory(EnemyConfig config, Camera camera, ObjectPool<EntityLink> enemyPool)
     {
         _config = config;
         _camera = camera;
+        _enemyPool = enemyPool;
     }
 
     public int Create(EcsWorld world, Vector3 position)
     {
-        Transform enemyTransform;
-        if (PoolService.Instance?.EnemyPool != null)
-        {
-            var enemyGo = PoolService.Instance.EnemyPool.Get(position, Quaternion.identity);
-            enemyGo.name = "Enemy";
-            enemyTransform = enemyGo.transform;
-        }
-        else
-        {
-            var enemyGo = Object.Instantiate(_config.EnemyPrefab, position, Quaternion.identity);
-            enemyGo.name = "Enemy";
-            enemyTransform = enemyGo.transform;
-        }
+        var enemyGo = _enemyPool.Get(position, Quaternion.identity);
+        enemyGo.name = DefaultName;
 
         var entity = world.NewEntity();
-        SetupTransform<EnemyTag>(world, entity, enemyTransform);
+        SetupTransform<EnemyTag>(world, entity, enemyGo.transform);
 
         ref var health = ref world.GetPool<Health>().Add(entity);
         health.Current = _config.MaxHealth;
         health.Max = _config.MaxHealth;
 
         world.GetPool<MoveSpeed>().Add(entity).Value = _config.MoveSpeed;
+        world.GetPool<EnemyDamageCooldown>().Add(entity).Max = _config.SpawnInterval;
 
-        world.GetPool<EnemyDamageCooldown>().Add(entity).Max = 1f;
-
-        var entityLink = enemyTransform.GetComponent<EntityLink>() ?? enemyTransform.gameObject.AddComponent<EntityLink>();
-        entityLink.Entity = entity;
+        enemyGo.Entity = entity;
 
         var healthBar = Object.Instantiate(_config.HealthBarPrefab, Vector3.zero, Quaternion.identity);
         var canvas = healthBar.GetComponent<Canvas>();

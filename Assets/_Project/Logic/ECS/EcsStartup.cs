@@ -20,13 +20,14 @@ public class EcsStartup : MonoBehaviour
 
         _uiEventListeners.InitializeEcsFilters(_world);
 
-        var poolService = gameObject.AddComponent<PoolService>();
-        poolService.Initialize(_config.ProjectileConfig.ProjectilePrefab.transform, _config.EnemySpawnerConfig.EnemyConfig.EnemyPrefab.transform, _config.CoinConfig.CoinPrefab.transform, _config.PoolConfig);
+        var projectilePool = new ObjectPool<EntityLink>(_config.ProjectileConfig.ProjectilePrefab, _config.PoolConfig.ProjectilePoolSize);
+        var enemyPool = new ObjectPool<EntityLink>(_config.EnemySpawnerConfig.EnemyConfig.EnemyPrefab, _config.PoolConfig.EnemyPoolSize);
+        var coinPool = new ObjectPool<EntityLink>(_config.CoinConfig.CoinPrefab, _config.PoolConfig.CoinPoolSize);
 
-        var playerFactory = new PlayerFactory(_config.PlayerConfig, _config.PlayerConfig.PlayerPrefab.transform);
-        var enemyFactory = new EnemyFactory(_config.EnemySpawnerConfig.EnemyConfig, _mainCamera);
-        var projectileFactory = new ProjectileFactory(_config.ProjectileConfig, _config.ProjectileConfig.ProjectilePrefab.transform);
-        var coinFactory = new CoinFactory(_config.CoinConfig, _config.CoinConfig.CoinPrefab.transform);
+        var playerFactory = new PlayerFactory(_config.PlayerConfig);
+        var enemyFactory = new EnemyFactory(_config.EnemySpawnerConfig.EnemyConfig, _mainCamera, enemyPool);
+        var projectileFactory = new ProjectileFactory(_config.ProjectileConfig, projectilePool);
+        var coinFactory = new CoinFactory(_config.CoinConfig, coinPool);
 
         var sharedData = new SystemsSharedData {
             SpatialCacheSystem = new SpatialCacheSystem()
@@ -49,7 +50,7 @@ public class EcsStartup : MonoBehaviour
             .Add(new PlayerDeathSystem())
             .Add(new EnemyDeathSystem(_config.CoinConfig))
             .Add(new ProjectileDeathSystem())
-            .Add(new ObjectLifecycleSystem(poolService))
+            .Add(new ObjectLifecycleSystem(enemyPool, projectilePool, coinPool))
             .Add(new CoinCollectSystem(_config.CoinConfig))
             .Add(new CameraFollowSystem(_config.CameraConfig, _mainCamera))
             .Add(new UIPlayerSystem(_playerHealthText, _coinsText, _gameOverPanel))

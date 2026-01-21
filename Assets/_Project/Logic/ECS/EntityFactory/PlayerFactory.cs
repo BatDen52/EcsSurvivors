@@ -3,23 +3,23 @@ using UnityEngine;
 
 public class PlayerFactory : BaseFactory<PlayerTag>
 {
-    private readonly Transform _prefab;
+    private const string DefaultName = "Player";
+    private readonly EntityLink _prefab;
     protected readonly PlayerConfig _config;
 
-    public PlayerFactory(PlayerConfig config, Transform prefab)
+    public PlayerFactory(PlayerConfig config)
     {
-        _prefab = prefab;
         _config = config;
+        _prefab = _config.PlayerPrefab;
     }
 
     public override int Create(EcsWorld world)
     {
         var playerGo = Object.Instantiate(_prefab, Vector3.zero, Quaternion.identity);
-        playerGo.name = "Player";
-        Transform playerTransform = playerGo.transform;
+        playerGo.name = DefaultName;
 
         var entity = world.NewEntity();
-        SetupTransform<PlayerTag>(world, entity, playerTransform);
+        SetupTransform<PlayerTag>(world, entity, playerGo.transform);
 
         ref var health = ref world.GetPool<Health>().Add(entity);
         health.Current = _config.MaxHealth;
@@ -29,8 +29,7 @@ public class PlayerFactory : BaseFactory<PlayerTag>
         world.GetPool<FireCooldown>().Add(entity).Max = _config.ShootCooldown;
         world.GetPool<InputVector>().Add(entity);
 
-        var entityLink = playerTransform.GetComponent<EntityLink>() ?? playerTransform.gameObject.AddComponent<EntityLink>();
-        entityLink.Entity = entity;
+        playerGo.Entity = entity;
 
         return entity;
     }
