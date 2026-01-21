@@ -22,7 +22,7 @@ public class SpatialCacheSystem : IEcsInitSystem, IEcsRunSystem
 
         foreach (var enemy in filter)
         {
-            if (!_lastUpdateTimes.ContainsKey(enemy) || Time.time - _lastUpdateTimes[enemy] > UpdateInterval)
+            if (_lastUpdateTimes.ContainsKey(enemy) == false || Time.time - _lastUpdateTimes[enemy] > UpdateInterval)
             {
                 _enemyPositions[enemy] = transforms.Get(enemy).Value.position;
                 _lastUpdateTimes[enemy] = Time.time;
@@ -32,7 +32,8 @@ public class SpatialCacheSystem : IEcsInitSystem, IEcsRunSystem
 
     public Vector3? GetNearestEnemyPosition(Vector3 playerPosition)
     {
-        if (_enemyPositions.Count == 0) return null;
+        if (_enemyPositions.Count == 0) 
+            return null;
 
         Vector3? nearestPosition = null;
         float minSqrDistance = float.MaxValue;
@@ -40,6 +41,7 @@ public class SpatialCacheSystem : IEcsInitSystem, IEcsRunSystem
         foreach (var position in _enemyPositions.Values)
         {
             float sqrDistance = playerPosition.SqrDistance(position);
+
             if (sqrDistance < minSqrDistance)
             {
                 minSqrDistance = sqrDistance;

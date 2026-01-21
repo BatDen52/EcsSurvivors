@@ -6,8 +6,6 @@ public class EnemyDeathSystem : IEcsInitSystem, IEcsRunSystem
     private readonly CoinConfig _config;
     private EcsWorld _world;
     private EcsFilter _deadEnemiesFilter;
-    private EcsPool<DeadTag> _deadPool;
-    private EcsPool<EnemyTag> _enemiesPool;
     private EcsPool<TransformRef> _transformsPool;
     private EcsPool<UIHealthBar> _uiBarsPool;
 
@@ -20,8 +18,6 @@ public class EnemyDeathSystem : IEcsInitSystem, IEcsRunSystem
     {
         _world = systems.GetWorld();
         _deadEnemiesFilter = _world.Filter<DeadTag>().Inc<EnemyTag>().End();
-        _deadPool = _world.GetPool<DeadTag>();
-        _enemiesPool = _world.GetPool<EnemyTag>();
         _transformsPool = _world.GetPool<TransformRef>();
         _uiBarsPool = _world.GetPool<UIHealthBar>();
     }
@@ -40,10 +36,10 @@ public class EnemyDeathSystem : IEcsInitSystem, IEcsRunSystem
             if (_uiBarsPool.Has(enemy))
             {
                 ref var uiBar = ref _uiBarsPool.Get(enemy);
+                
                 if (uiBar.HealthBarCanvas != null)
-                {
                     GameObject.Destroy(uiBar.HealthBarCanvas.gameObject);
-                }
+                
                 _uiBarsPool.Del(enemy);
             }
 

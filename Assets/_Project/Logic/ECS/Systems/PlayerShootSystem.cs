@@ -20,11 +20,7 @@ public class PlayerShootSystem : IEcsInitSystem, IEcsRunSystem
         _transformsPool = _world.GetPool<TransformRef>();
         _healthsPool = _world.GetPool<Health>();
 
-        var sharedData = systems.GetShared<SystemsSharedData>();
-        if (sharedData != null)
-        {
-            _spatialCache = sharedData.SpatialCacheSystem;
-        }
+        _spatialCache = systems?.GetShared<SystemsSharedData>()?.SpatialCacheSystem;
     }
 
     public void Run(IEcsSystems systems)

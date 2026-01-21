@@ -8,7 +8,6 @@ public class DamageSystem : IEcsInitSystem, IEcsRunSystem
     private EcsFilter _playerFilter;
     private EcsFilter _enemyFilter;
     private EcsPool<Health> _playerPool;
-    private EcsPool<EnemyTag> _enemiesPool;
     private EcsPool<TransformRef> _positionsPool;
     private EcsPool<EnemyDamageCooldown> _damageCooldownsPool;
 
@@ -23,40 +22,52 @@ public class DamageSystem : IEcsInitSystem, IEcsRunSystem
         _playerFilter = _world.Filter<PlayerTag>().Inc<Health>().End();
         _enemyFilter = _world.Filter<EnemyTag>().Inc<Health>().Inc<EnemyDamageCooldown>().End();
         _playerPool = _world.GetPool<Health>();
-        _enemiesPool = _world.GetPool<EnemyTag>();
         _positionsPool = _world.GetPool<TransformRef>();
         _damageCooldownsPool = _world.GetPool<EnemyDamageCooldown>();
     }
 
     public void Run(IEcsSystems systems)
     {
-        foreach (var enemy in _enemyFilter)
+        foreach (var player in _playerFilter)
         {
-            ref var enemyPos = ref _positionsPool.Get(enemy);
+            var playerPos = _positionsPool.Get(player).Value.position;
+            ref var playerHealth = ref _playerPool.Get(player);
 
-            foreach (var player in _playerFilter)
+            foreach (var enemy in _enemyFilter)
             {
-                ref var playerPos = ref _positionsPool.Get(player);
+                var enemyPos = _positionsPool.Get(enemy).Value.position;
+                ref var damageCooldown = ref _damageCooldownsPool.Get(enemy);
 
-                if (enemyPos.Value.position.IsEnoughClose(playerPos.Value.position, _config.DamageDistance))
-                {
-                    ref var damageCooldown = ref _damageCooldownsPool.Get(enemy);
-                    damageCooldown.Current -= Time.deltaTime;
+                if (enemyPos.IsEnoughClose(playerPos, _config.DamageDistance) == false
+                    || TryConsumeCooldown(ref damageCooldown) == false)
+                    continue;
 
-                    if (damageCooldown.Current <= 0)
-                    {
-                        damageCooldown.Current = damageCooldown.Max;
-
-                        ref var playerHealth = ref _playerPool.Get(player);
-                        playerHealth.Current -= _config.Damage;
-                        if (playerHealth.Current < 0)
-                            playerHealth.Current = 0;
-
-                        var eventEntity = _world.NewEntity();
-                        _world.GetPool<UpdatePlayerHealthEvent>().Add(eventEntity).CurrentHealth = playerHealth.Current;
-                    }
-                }
+                ApplyDamageToPlayer(ref playerHealth);
+                ResetCooldown(ref damageCooldown);
+                CreateHealthUpdateEvent(playerHealth.Current);
             }
         }
+    }
+
+    private bool TryConsumeCooldown(ref EnemyDamageCooldown damageCooldown)
+    {
+        damageCooldown.Current -= Time.deltaTime;
+        return damageCooldown.Current <= 0;
+    }
+
+    private void ApplyDamageToPlayer(ref Health playerHealth)
+    {
+        playerHealth.Current = Mathf.Max(0, playerHealth.Current - _config.Damage);
+    }
+
+    private void ResetCooldown(ref EnemyDamageCooldown cooldown)
+    {
+        cooldown.Current = cooldown.Max;
+    }
+
+    private void CreateHealthUpdateEvent(int currentHealth)
+    {
+        var eventEntity = _world.NewEntity();
+        _world.GetPool<UpdatePlayerHealthEvent>().Add(eventEntity).CurrentHealth = currentHealth;
     }
 }

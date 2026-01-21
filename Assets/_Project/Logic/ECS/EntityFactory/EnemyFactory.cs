@@ -31,7 +31,7 @@ public class EnemyFactory : BaseFactory<EnemyTag>
         health.Max = _config.MaxHealth;
 
         world.GetPool<MoveSpeed>().Add(entity).Value = _config.MoveSpeed;
-        world.GetPool<EnemyDamageCooldown>().Add(entity).Max = _config.SpawnInterval;
+        world.GetPool<EnemyDamageCooldown>().Add(entity).Max = _config.DamageInterval;
 
         var healthBar = Object.Instantiate(_config.HealthBarPrefab, Vector3.zero, Quaternion.identity);
         var canvas = healthBar.GetComponent<Canvas>();
