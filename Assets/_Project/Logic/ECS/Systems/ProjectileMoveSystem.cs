@@ -11,6 +11,7 @@ public class ProjectileMoveSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<Direction> _directionPool;
     private EcsPool<ProjectileLifetime> _lifetimesPool;
     private EcsPool<DestroyRequest> _destroyRequestsPool;
+    private EcsPool<DeadTag> _deadTagPool;
 
     public ProjectileMoveSystem(ProjectileConfig config)
     {
@@ -26,27 +27,29 @@ public class ProjectileMoveSystem : IEcsInitSystem, IEcsRunSystem
         _directionPool = _world.GetPool<Direction>();
         _lifetimesPool = _world.GetPool<ProjectileLifetime>();
         _destroyRequestsPool = _world.GetPool<DestroyRequest>();
+        _deadTagPool = _world.GetPool<DeadTag>();
     }
 
     public void Run(IEcsSystems systems)
     {
         foreach (var projectile in _filter)
         {
-            ref var rb = ref _rigidbodiesPool.Get(projectile);
+            ref var rigidbody = ref _rigidbodiesPool.Get(projectile);
             ref var transform = ref _transformsPool.Get(projectile);
 
-            rb.Value.MovePosition(transform.Value.position + _directionPool.Get(projectile).Value * _config.Speed * Time.deltaTime);
+            rigidbody.Value.MovePosition(GetNextPosition(projectile, transform));
 
-            if (_lifetimesPool.Has(projectile) &&  _destroyRequestsPool.Has(projectile) == false)
+            if (_lifetimesPool.Has(projectile) && _destroyRequestsPool.Has(projectile) == false)
             {
                 ref var lifetime = ref _lifetimesPool.Get(projectile);
                 lifetime.Value -= Time.deltaTime;
-               
+
                 if (lifetime.Value <= 0)
-                {
-                    _world.GetPool<DeadTag>().Add(projectile);
-                }
+                    _deadTagPool.Add(projectile);
             }
         }
     }
+
+    private Vector3 GetNextPosition(int projectile, TransformRef transform) =>
+        transform.Value.position + _directionPool.Get(projectile).Value * _config.Speed * Time.deltaTime;
 }

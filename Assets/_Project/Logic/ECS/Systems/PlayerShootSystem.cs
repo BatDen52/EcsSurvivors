@@ -10,6 +10,7 @@ public class PlayerShootSystem : IEcsInitSystem, IEcsRunSystem
     private EcsPool<TransformRef> _transformsPool;
     private EcsPool<Health> _healthsPool;
     private SpatialCacheSystem _spatialCache;
+    private EcsPool<SpawnProjectileRequest> _spawnProjectileRequestPool;
 
     public void Init(IEcsSystems systems)
     {
@@ -19,6 +20,7 @@ public class PlayerShootSystem : IEcsInitSystem, IEcsRunSystem
         _cooldownsPool = _world.GetPool<FireCooldown>();
         _transformsPool = _world.GetPool<TransformRef>();
         _healthsPool = _world.GetPool<Health>();
+        _spawnProjectileRequestPool = _world.GetPool<SpawnProjectileRequest>();
 
         _spatialCache = systems?.GetShared<SystemsSharedData>()?.SpatialCacheSystem;
     }
@@ -31,50 +33,69 @@ public class PlayerShootSystem : IEcsInitSystem, IEcsRunSystem
                 continue;
 
             ref var cooldown = ref _cooldownsPool.Get(player);
-            cooldown.Current -= Time.deltaTime;
-
-            if (cooldown.Current <= 0)
+            
+            if (TryConsumeCooldown(ref cooldown))
             {
-                cooldown.Current = cooldown.Max;
-                Shoot(_world, _transformsPool.Get(player).Value);
+                Shoot(_transformsPool.Get(player).Value);
+                ResetCooldown(ref cooldown);
             }
         }
     }
 
-    private void Shoot(EcsWorld world, Transform playerTransform)
+    private bool TryConsumeCooldown(ref FireCooldown damageCooldown)
     {
-        Vector3? nearestEnemyPosition = _spatialCache?.GetNearestEnemyPosition(playerTransform.position);
-        Vector3 shootDirection;
+        damageCooldown.Current -= Time.deltaTime;
+        return damageCooldown.Current <= 0;
+    }
+
+    private void ResetCooldown(ref FireCooldown cooldown)
+    {
+        cooldown.Current = cooldown.Max;
+    }
+
+    private void Shoot(Transform playerTransform)
+    {
+        Vector3 shootDirection = GetShootDirection(playerTransform.position);
+        SpawnProjectile(playerTransform.position + shootDirection, shootDirection);
+    }
+
+    private Vector3 GetShootDirection(Vector3 playerPosition)
+    {
+        Vector3? nearestEnemyPosition = _spatialCache?.GetNearestEnemyPosition(playerPosition);
 
         if (nearestEnemyPosition.HasValue)
-        {
-            shootDirection = (nearestEnemyPosition.Value - playerTransform.position).normalized;
-        }
-        else
-        {
-            Transform nearestEnemy = null;
-            float minSqrDistance = float.MaxValue;
+            return (nearestEnemyPosition.Value - playerPosition).normalized;
 
-            foreach (var enemy in _enemyFilter)
+        return FindNearestEnemyDirection(playerPosition) ?? Vector3.forward;
+    }
+
+    private Vector3? FindNearestEnemyDirection(Vector3 playerPosition)
+    {
+        Transform nearestEnemy = null;
+        float minSqrDistance = float.MaxValue;
+
+        foreach (var enemy in _enemyFilter)
+        {
+            ref var enemyTransform = ref _transformsPool.Get(enemy);
+            float sqrDistance = playerPosition.SqrDistance(enemyTransform.Value.position);
+
+            if (sqrDistance < minSqrDistance)
             {
-                ref var enemyTransform = ref _transformsPool.Get(enemy);
-                float sqrDistance = playerTransform.position.SqrDistance(enemyTransform.Value.position);
-
-                if (sqrDistance < minSqrDistance)
-                {
-                    minSqrDistance = sqrDistance;
-                    nearestEnemy = enemyTransform.Value;
-                }
+                minSqrDistance = sqrDistance;
+                nearestEnemy = enemyTransform.Value;
             }
-
-            shootDirection = (nearestEnemy != null) ?
-                (nearestEnemy.position - playerTransform.position).normalized :
-                playerTransform.forward;
         }
 
-        var spawnRequest = world.NewEntity();
-        ref var request = ref world.GetPool<SpawnProjectileRequest>().Add(spawnRequest);
-        request.Position = playerTransform.position + shootDirection;
-        request.Direction = shootDirection;
+        return nearestEnemy != null
+            ? (nearestEnemy.position - playerPosition).normalized
+            : null;
+    }
+
+    private void SpawnProjectile(Vector3 position, Vector3 direction)
+    {
+        var spawnRequest = _world.NewEntity();
+        ref var request = ref _spawnProjectileRequestPool.Add(spawnRequest);
+        request.Position = position;
+        request.Direction = direction;
     }
 }
