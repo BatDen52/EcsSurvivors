@@ -15,3 +15,4 @@ MonoBehaviour:
   _maxHealth: 100
   _moveSpeed: 5
   _shootCooldown: 1
+  _playerPrefab: {fileID: 2648408449249266048, guid: 8ab90a010794807429b0a5962f71589a, type: 3}

@@ -15,3 +15,4 @@ MonoBehaviour:
   _speed: 12
   _damage: 25
   _lifetime: 5
+  _projectilePrefab: {fileID: 2537546123271463958, guid: e84bdb6c2c2c1724388720d6e1fe6bbc, type: 3}

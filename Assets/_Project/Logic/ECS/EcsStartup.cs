@@ -6,11 +6,6 @@ public class EcsStartup : MonoBehaviour
     [SerializeField] private GameConfig _config;
     [SerializeField] private Camera _mainCamera;
     [SerializeField] private UIEventListeners _uiEventListeners;
-    [SerializeField] private Transform _playerPrefab;
-    [SerializeField] private Transform _enemyPrefab;
-    [SerializeField] private Transform _projectilePrefab;
-    [SerializeField] private Transform _coinPrefab;
-    [SerializeField] private GameObject _healthBarPrefab;
     [SerializeField] private GameObject _gameOverPanel;
     [SerializeField] private TMPro.TextMeshProUGUI _playerHealthText;
     [SerializeField] private TMPro.TextMeshProUGUI _coinsText;
@@ -26,12 +21,12 @@ public class EcsStartup : MonoBehaviour
         _uiEventListeners.InitializeEcsFilters(_world);
 
         var poolService = gameObject.AddComponent<PoolService>();
-        poolService.Initialize(_projectilePrefab, _enemyPrefab, _coinPrefab, _config.PoolConfig);
+        poolService.Initialize(_config.ProjectileConfig.ProjectilePrefab.transform, _config.EnemySpawnerConfig.EnemyConfig.EnemyPrefab.transform, _config.CoinConfig.CoinPrefab.transform, _config.PoolConfig);
 
-        var playerFactory = new PlayerFactory(_config.PlayerConfig, _playerPrefab, _healthBarPrefab);
-        var enemyFactory = new EnemyFactory(_config.EnemySpawnerConfig.EnemyConfig, _enemyPrefab, _mainCamera, _healthBarPrefab);
-        var projectileFactory = new ProjectileFactory(_config.ProjectileConfig, _projectilePrefab);
-        var coinFactory = new CoinFactory(_config.CoinConfig, _coinPrefab);
+        var playerFactory = new PlayerFactory(_config.PlayerConfig, _config.PlayerConfig.PlayerPrefab.transform);
+        var enemyFactory = new EnemyFactory(_config.EnemySpawnerConfig.EnemyConfig, _mainCamera);
+        var projectileFactory = new ProjectileFactory(_config.ProjectileConfig, _config.ProjectileConfig.ProjectilePrefab.transform);
+        var coinFactory = new CoinFactory(_config.CoinConfig, _config.CoinConfig.CoinPrefab.transform);
 
         var sharedData = new SystemsSharedData {
             SpatialCacheSystem = new SpatialCacheSystem()

@@ -3,17 +3,13 @@ using UnityEngine;
 
 public class EnemyFactory : BaseFactory<EnemyTag>
 {
-    private readonly Transform _prefab;
     private readonly Camera _camera;
-    private readonly GameObject _healthBarPrefab;
     private readonly EnemyConfig _config;
 
-    public EnemyFactory(EnemyConfig config, Transform prefab, Camera camera, GameObject healthBarPrefab)
+    public EnemyFactory(EnemyConfig config, Camera camera)
     {
         _config = config;
-        _prefab = prefab;
         _camera = camera;
-        _healthBarPrefab = healthBarPrefab;
     }
 
     public int Create(EcsWorld world, Vector3 position)
@@ -27,7 +23,7 @@ public class EnemyFactory : BaseFactory<EnemyTag>
         }
         else
         {
-            var enemyGo = Object.Instantiate(_prefab, position, Quaternion.identity);
+            var enemyGo = Object.Instantiate(_config.EnemyPrefab, position, Quaternion.identity);
             enemyGo.name = "Enemy";
             enemyTransform = enemyGo.transform;
         }
@@ -46,7 +42,7 @@ public class EnemyFactory : BaseFactory<EnemyTag>
         var entityLink = enemyTransform.GetComponent<EntityLink>() ?? enemyTransform.gameObject.AddComponent<EntityLink>();
         entityLink.Entity = entity;
 
-        var healthBar = Object.Instantiate(_healthBarPrefab, Vector3.zero, Quaternion.identity);
+        var healthBar = Object.Instantiate(_config.HealthBarPrefab, Vector3.zero, Quaternion.identity);
         var canvas = healthBar.GetComponent<Canvas>();
         canvas.worldCamera = _camera;
 

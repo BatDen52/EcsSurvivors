@@ -49,7 +49,7 @@ public class EnemyMoveSystem : IEcsInitSystem, IEcsRunSystem
             Vector3 direction = (playerPosition - position).normalized;
 
             rigidbody.Value.linearVelocity = 
-                                    playerPosition.IsEnoughClose(position, _config.StopDistance) ?
+                                    playerPosition.IsEnoughClose(position, _config.StopDistance) == false ?
                                     direction * speed.Value :
                                     Vector3.zero;
         }

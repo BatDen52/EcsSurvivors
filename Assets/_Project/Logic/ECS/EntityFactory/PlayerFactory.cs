@@ -4,13 +4,11 @@ using UnityEngine;
 public class PlayerFactory : BaseFactory<PlayerTag>
 {
     private readonly Transform _prefab;
-    private readonly GameObject _healthBarPrefab;
     protected readonly PlayerConfig _config;
 
-    public PlayerFactory(PlayerConfig config, Transform prefab, GameObject healthBarPrefab)
+    public PlayerFactory(PlayerConfig config, Transform prefab)
     {
         _prefab = prefab;
-        _healthBarPrefab = healthBarPrefab;
         _config = config;
     }
 

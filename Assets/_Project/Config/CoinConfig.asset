@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _dropChance: 0.5
   _collectionDistance: 1
+  _coinPrefab: {fileID: 7423390842476481440, guid: 0033f4b7ab6e82d459a7dcf127367aa0, type: 3}

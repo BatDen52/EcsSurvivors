@@ -20,3 +20,5 @@ MonoBehaviour:
   _spawnInterval: 7
   _spawnDistanceFromCamera: 3
   _maxEnemiesCount: 20
+  _enemyPrefab: {fileID: -5305305517796978737, guid: 7f1332976baa7af4aa82ea60783922d2, type: 3}
+  _healthBarPrefab: {fileID: 9135244371042267652, guid: 4cea2d92f61fbb041b7b521b54ca818d, type: 3}

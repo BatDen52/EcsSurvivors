@@ -11,6 +11,8 @@ public class EnemyConfig : ScriptableObject
     [SerializeField] private float _spawnInterval = 7f;
     [SerializeField] private float _spawnDistanceFromCamera = 3f;
     [SerializeField] private int _maxEnemiesCount = 20;
+    [SerializeField] private EntityLink _enemyPrefab;
+    [SerializeField] private EnemyHealthBar _healthBarPrefab;
 
     public int MaxHealth => _maxHealth;
     public float MoveSpeed => _moveSpeed;
@@ -20,4 +22,6 @@ public class EnemyConfig : ScriptableObject
     public float SpawnInterval => _spawnInterval;
     public float SpawnDistanceFromCamera => _spawnDistanceFromCamera;
     public int MaxEnemiesCount => _maxEnemiesCount;
+    public EntityLink EnemyPrefab => _enemyPrefab;
+    public EnemyHealthBar HealthBarPrefab => _healthBarPrefab; 
 }
