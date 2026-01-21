@@ -1,14 +1,16 @@
 using Leopotam.EcsLite;
-using UnityEngine;
 
 public class PlayerInputSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private const string Horizontal = "Horizontal";
-    private const string Vertical = "Vertical";
-
-    public EcsWorld _world;
+    private InputService _inputService; 
+    private EcsWorld _world;
     private EcsFilter _filter;
     private EcsPool<InputVector> _inputsPool;
+
+    public PlayerInputSystem(InputService inputService)
+    {
+        _inputService = inputService;
+    }
 
     public void Init(IEcsSystems systems)
     {
@@ -22,10 +24,7 @@ public class PlayerInputSystem : IEcsInitSystem, IEcsRunSystem
         foreach (var player in _filter)
         {
             ref var input = ref _inputsPool.Get(player);
-            input.Value = new Vector2(
-                Input.GetAxisRaw(Horizontal),
-                Input.GetAxisRaw(Vertical)
-            );
+            input.Value = _inputService.GetDirection();
         }
     }
 }

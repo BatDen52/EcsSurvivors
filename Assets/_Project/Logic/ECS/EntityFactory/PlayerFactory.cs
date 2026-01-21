@@ -15,11 +15,13 @@ public class PlayerFactory : BaseFactory<PlayerTag>
 
     public override int Create(EcsWorld world)
     {
+        var entity = world.NewEntity();
+
         var playerGo = Object.Instantiate(_prefab, Vector3.zero, Quaternion.identity);
         playerGo.name = DefaultName;
+        playerGo.Entity = entity;
 
-        var entity = world.NewEntity();
-        SetupTransform<PlayerTag>(world, entity, playerGo.transform);
+        SetupTransform(world, entity, playerGo.transform);
 
         ref var health = ref world.GetPool<Health>().Add(entity);
         health.Current = _config.MaxHealth;
@@ -28,8 +30,6 @@ public class PlayerFactory : BaseFactory<PlayerTag>
         world.GetPool<MoveSpeed>().Add(entity).Value = _config.MoveSpeed;
         world.GetPool<FireCooldown>().Add(entity).Max = _config.ShootCooldown;
         world.GetPool<InputVector>().Add(entity);
-
-        playerGo.Entity = entity;
 
         return entity;
     }

@@ -18,13 +18,13 @@ public class CoinFactory : BaseFactory<CoinTag>
 
     public int Create(EcsWorld world, Vector3 position)
     {
+        var entity = world.NewEntity();
+
         var coinGo = _coinPool.Get(position, Quaternion.identity);
         coinGo.name = DefaultName;
-
-        var entity = world.NewEntity();
-        SetupTransform<CoinTag>(world, entity, coinGo.transform);
-
         coinGo.Entity = entity;
+
+        SetupTransform(world, entity, coinGo.transform);
 
         return entity;
     }

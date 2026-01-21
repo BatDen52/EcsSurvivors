@@ -1,24 +1,28 @@
 using Leopotam.EcsLite;
-using UnityEngine;
 
-public class SpawnPlayerSystem : IEcsRunSystem
+public class SpawnPlayerSystem : IEcsInitSystem, IEcsRunSystem
 {
     private readonly PlayerFactory _factory;
+    private EcsWorld _world;
+    private EcsFilter _filter;
 
     public SpawnPlayerSystem(PlayerFactory factory)
     {
         _factory = factory;
     }
 
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _filter = _world.Filter<SpawnPlayerRequest>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var filter = world.Filter<SpawnPlayerRequest>().End();
-
-        foreach (var entity in filter)
+        foreach (var entity in _filter)
         {
-            _factory.Create(world);
-            world.DelEntity(entity);
+            _factory.Create(_world);
+            _world.DelEntity(entity);
         }
     }
 }

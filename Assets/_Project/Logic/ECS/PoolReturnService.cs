@@ -9,59 +9,51 @@ public class PoolReturnService
     private EcsWorld _world;
 
     public PoolReturnService(ObjectPool<EntityLink> enemyPool, ObjectPool<EntityLink> projectilePool,
-        ObjectPool<EntityLink> coinPool)
+        ObjectPool<EntityLink> coinPool, EcsWorld world)
     {
         _coinPool = coinPool;
         _projectilePool = projectilePool;
         _enemyPool = enemyPool;
-    }
-
-    public void SetWorld(EcsWorld world)
-    {
         _world = world;
     }
 
     public void ReturnEntityToPool(int entity)
     {
-        if (_world == null || !_world.GetPool<TransformRef>().Has(entity))
+        if (_world == null || !_world.GetPool<RigidbodyRef>().Has(entity))
             return;
 
-        var transform = _world.GetPool<TransformRef>().Get(entity).Value;
-        var entityLink = transform.GetComponent<EntityLink>();
+        var rigidbody = _world.GetPool<RigidbodyRef>().Get(entity).Value;
+        var entityLink = rigidbody.GetComponent<EntityLink>();
 
         if (entityLink == null)
             return;
 
         if (_world.GetPool<ProjectileTag>().Has(entity) && _projectilePool != null)
         {
-            ResetProjectile(entity, transform);
+            ResetProjectile(entity, rigidbody);
             _projectilePool.ReturnToPool(entityLink);
         }
         else if (_world.GetPool<EnemyTag>().Has(entity) && _enemyPool != null)
         {
-            ResetEnemy(entity, transform);
+            ResetEnemy(entity, rigidbody);
             _enemyPool.ReturnToPool(entityLink);
         }
         else if (_world.GetPool<CoinTag>().Has(entity) && _coinPool != null)
         {
-            ResetCoin(entity, transform);
+            ResetCoin(entity, rigidbody);
             _coinPool.ReturnToPool(entityLink);
         }
         else
         {
-            Object.Destroy(transform.gameObject);
+            Object.Destroy(rigidbody.gameObject);
         }
     }
 
-    private void ResetProjectile(int entity, Transform transform)
+    private void ResetProjectile(int entity, Rigidbody rigidbody)
     {
-        var rb = transform.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
-
+        rigidbody.linearVelocity = Vector3.zero;
+        rigidbody.angularVelocity = Vector3.zero;
+       
         if (_world.GetPool<Direction>().Has(entity))
         {
             ref var direction = ref _world.GetPool<Direction>().Get(entity);
@@ -69,14 +61,10 @@ public class PoolReturnService
         }
     }
 
-    private void ResetEnemy(int entity, Transform transform)
+    private void ResetEnemy(int entity, Rigidbody rigidbody)
     {
-        var rb = transform.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
+        rigidbody.linearVelocity = Vector3.zero;
+        rigidbody.angularVelocity = Vector3.zero;
 
         if (_world.GetPool<Health>().Has(entity))
         {
@@ -99,13 +87,9 @@ public class PoolReturnService
         }
     }
 
-    private void ResetCoin(int entity, Transform transform)
+    private void ResetCoin(int entity, Rigidbody rigidbody)
     {
-        var rb = transform.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
+        rigidbody.linearVelocity = Vector3.zero;
+        rigidbody.angularVelocity = Vector3.zero;
     }
 }

@@ -18,11 +18,13 @@ public class EnemyFactory : BaseFactory<EnemyTag>
 
     public int Create(EcsWorld world, Vector3 position)
     {
+        var entity = world.NewEntity();
+
         var enemyGo = _enemyPool.Get(position, Quaternion.identity);
         enemyGo.name = DefaultName;
+        enemyGo.Entity = entity;
 
-        var entity = world.NewEntity();
-        SetupTransform<EnemyTag>(world, entity, enemyGo.transform);
+        SetupTransform(world, entity, enemyGo.transform);
 
         ref var health = ref world.GetPool<Health>().Add(entity);
         health.Current = _config.MaxHealth;
@@ -30,8 +32,6 @@ public class EnemyFactory : BaseFactory<EnemyTag>
 
         world.GetPool<MoveSpeed>().Add(entity).Value = _config.MoveSpeed;
         world.GetPool<EnemyDamageCooldown>().Add(entity).Max = _config.SpawnInterval;
-
-        enemyGo.Entity = entity;
 
         var healthBar = Object.Instantiate(_config.HealthBarPrefab, Vector3.zero, Quaternion.identity);
         var canvas = healthBar.GetComponent<Canvas>();

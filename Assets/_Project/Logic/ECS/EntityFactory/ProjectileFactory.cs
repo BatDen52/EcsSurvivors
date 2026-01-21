@@ -16,11 +16,13 @@ public class ProjectileFactory : BaseFactory<ProjectileTag>
 
     public int Create(EcsWorld world, Vector3 position, Vector3 direction)
     {
+        var entity = world.NewEntity();
+
         var projectileGo = _projectilePool.Get(position, Quaternion.LookRotation(direction));
         projectileGo.name = DefaultName;
+        projectileGo.Entity = entity;
       
-        var entity = world.NewEntity();
-        SetupTransform<ProjectileTag>(world, entity, projectileGo.transform);
+        SetupTransform(world, entity, projectileGo.transform);
 
         world.GetPool<Damage>().Add(entity).Amount = _config.Damage;
         world.GetPool<Direction>().Add(entity).Value = direction;
@@ -28,8 +30,6 @@ public class ProjectileFactory : BaseFactory<ProjectileTag>
 
         var rigidbody = projectileGo.GetComponent<Rigidbody>();
         rigidbody.linearVelocity = direction * _config.Speed;
-
-        projectileGo.Entity = entity;
 
         projectileGo.GetComponent<CollisionTrigger>()?.Initialize(world);
 

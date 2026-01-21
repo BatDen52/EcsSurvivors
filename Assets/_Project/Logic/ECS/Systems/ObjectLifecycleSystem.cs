@@ -5,30 +5,25 @@ public class ObjectLifecycleSystem : IEcsInitSystem, IEcsRunSystem
     private EcsWorld _world;
     private EcsFilter _destroyFilter;
     private EcsFilter _returnToPoolFilter;
-    private EcsPool<DestroyRequest> _destroyRequestsPool;
     private EcsPool<DestroyEntityRequest> _destroyEntityRequestsPool;
-    private EcsPool<ReturnToPoolRequest> _returnToPoolRequestsPool;
     private PoolReturnService _poolReturnService;
 
     public ObjectLifecycleSystem(ObjectPool<EntityLink> enemyPool, ObjectPool<EntityLink> projectilePool, 
-        ObjectPool<EntityLink> coinPool)
+        ObjectPool<EntityLink> coinPool, EcsWorld world)
     {
-        _poolReturnService = new PoolReturnService(enemyPool, projectilePool, coinPool);
+        _poolReturnService = new PoolReturnService(enemyPool, projectilePool, coinPool, world);
     }
 
     public void Init(IEcsSystems systems)
     {
         _world = systems.GetWorld();
-        _poolReturnService.SetWorld(_world);
 
         _destroyFilter = _world.Filter<DestroyRequest>().End();
         _returnToPoolFilter = _world.Filter<ReturnToPoolRequest>().End();
 
         var destroyEntityFilter = _world.Filter<DestroyEntityRequest>().End();
 
-        _destroyRequestsPool = _world.GetPool<DestroyRequest>();
         _destroyEntityRequestsPool = _world.GetPool<DestroyEntityRequest>();
-        _returnToPoolRequestsPool = _world.GetPool<ReturnToPoolRequest>();
     }
 
     public void Run(IEcsSystems systems)
